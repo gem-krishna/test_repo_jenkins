@@ -3,6 +3,6 @@ import add from './index.js';
 
 describe('add function', () => {
   it('should return 5 when adding 2 and 3', () => {
-    expect(add(3, 3)).to.equal(6);
+    expect(add(3, 4)).to.equal(7);
   });
 });
