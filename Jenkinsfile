@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 checkout scm
             }
@@ -10,27 +10,26 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                script {
-                    sh 'npm install'
-                }
+                echo 'Installing npm packages...'
+                sh 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    sh 'npm start'
-                }
+                echo 'Running tests...'
+                sh 'npm test'
             }
         }
     }
 
     post {
         success {
-            echo 'Build and tests succeeded!'
+            echo '✅ Tests passed!'
         }
+
         failure {
-            echo 'Build or tests failed.'
+            echo '❌ Tests failed!'
         }
     }
 }
