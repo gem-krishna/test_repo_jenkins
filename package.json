@@ -2,7 +2,8 @@
   "name": "jenkins-demo-repo",
   "version": "1.0.0",
   "description": "��#\u0000 \u0000t\u0000e\u0000s\u0000t\u0000_\u0000r\u0000e\u0000p\u0000o\u0000_\u0000j\u0000e\u0000n\u0000k\u0000i\u0000n\u0000s\u0000\r\u0000 \u0000",
-  "main": "index.js",
+  "main": "test.js",
+  "type" : "module",
   "scripts": {
     "test": "mocha",
     "start": "nodemon index.js"
@@ -20,8 +21,6 @@
   "homepage": "https://github.com/gem-krishna/test_repo_jenkins#readme",
   "dependencies": {
     "chai": "^5.2.0",
-    "express": "^5.1.0",
-    "mocha": "^11.1.0",
-    "nodemon": "^3.1.10"
+    "mocha": "^11.1.0"
   }
 }

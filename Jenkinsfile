@@ -1,26 +1,27 @@
 pipeline {
     agent any
 
+    environment {
+        GIT_CREDENTIALS_ID = 'github_access_token' // Or whatever you named the credential
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git url: 'https://github.com/gem-krishna/test_repo_jenkins.git',
+                    credentialsId: "${GIT_CREDENTIALS_ID}"
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                script {
-                    sh 'npm install'
-                }
+                sh 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    sh 'npm test'
-                }
+                sh 'npm test'
             }
         }
     }

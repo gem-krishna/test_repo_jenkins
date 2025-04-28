@@ -1,7 +1,8 @@
-// test.js
-const { expect } = require('chai');
-const { add } = require('./index');
+import { expect } from 'chai';
+import add from './index.js';
 
-describe('add', () => {
-  it('should return 5', () => expect(add(2, 3)).to.equal(5));  // This will pass
+describe('add function', () => {
+  it('should return 5 when adding 2 and 3', () => {
+    expect(add(2, 3)).to.equal(5);
+  });
 });
