@@ -2,20 +2,22 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/gem-krishna/test_repo_jenkins.git'
+                checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
+                echo 'Installing npm packages...'
                 sh 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
+                echo 'Running tests...'
                 sh 'npm test'
             }
         }
@@ -23,10 +25,11 @@ pipeline {
 
     post {
         success {
-            echo 'Build and tests succeeded!'
+            echo '✅ Tests passed!'
         }
+
         failure {
-            echo 'Build or tests failed.'
+            echo '❌ Tests failed!'
         }
     }
 }
