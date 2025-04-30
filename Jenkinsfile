@@ -65,7 +65,7 @@ pipeline {
             }
             steps {
                 echo 'Running PR-specific jobs...'
-                build job: 'job1_jenkins_test', wait: true
+                build job: 'test', wait: true
             }
         }
 
