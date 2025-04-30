@@ -68,7 +68,7 @@ pipeline {
                 script {
                     echo 'Triggering PR test job in folder...'
 
-                    def result = build job: 'test_jenkins_Pr_check/pr_test', wait: true, propagate: false
+                    def result = build job: 'pr_test', wait: true, propagate: false
 
                     echo "Triggered job finished with status: ${result.result}"
 
