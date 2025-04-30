@@ -38,15 +38,7 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Checkout Code') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
+    sta steps {
                 echo 'Installing npm packages...'
                 sh 'npm install'
             }
@@ -55,7 +47,15 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test'
+          ges {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+                 sh 'npm test'
             }
         }
 
@@ -63,20 +63,29 @@ pipeline {
             when {
                 changeRequest() // Only for PRs
             }
-            steps {
-                echo 'Running PR-specific jobs...'
-                build job: 'pr_test', wait: true
+            script {
+            echo 'Triggering PR test job in folder...'
+            
+            def result = build job: 'test_jenkins_Pr_check/pr_test', wait: true, propagate: false
+
+            echo "Triggered job finished with status: ${result.result}"
+
+            if (result.result == 'SUCCESS') {
+                echo '✅ PR job passed.'
+            } else {
+                echo '❌ PR job failed.'
+                error("Stopping pipeline because PR job failed.")
             }
+        }
         }
 
         stage('Trigger Deploy Jobs') {
             when {
-                branch 'main' // Only after merging to main
+                branch 'main'
             }
             steps {
                 echo 'Running deploy jobs...'
                 build job: 'pr_test', wait: true
-                // Add more deploy jobs here if needed
             }
         }
     }
