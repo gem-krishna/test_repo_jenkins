@@ -65,7 +65,7 @@ pipeline {
             }
             steps {
                 echo 'Running PR-specific jobs...'
-                build job: 'test', wait: true
+                build job: 'pr_test', wait: true
             }
         }
 
