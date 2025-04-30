@@ -35,10 +35,19 @@
 // }
 
 
+
 pipeline {
     agent any
 
-    sta steps {
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
                 echo 'Installing npm packages...'
                 sh 'npm install'
             }
@@ -47,15 +56,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests...'
-          ges {
-        stage('Checkout Code') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-                 sh 'npm test'
+                sh 'npm test'
             }
         }
 
@@ -63,20 +64,22 @@ pipeline {
             when {
                 changeRequest() // Only for PRs
             }
-            script {
-            echo 'Triggering PR test job in folder...'
-            
-            def result = build job: 'test_jenkins_Pr_check/pr_test', wait: true, propagate: false
+            steps {
+                script {
+                    echo 'Triggering PR test job in folder...'
 
-            echo "Triggered job finished with status: ${result.result}"
+                    def result = build job: 'test_jenkins_Pr_check/pr_test', wait: true, propagate: false
 
-            if (result.result == 'SUCCESS') {
-                echo '✅ PR job passed.'
-            } else {
-                echo '❌ PR job failed.'
-                error("Stopping pipeline because PR job failed.")
+                    echo "Triggered job finished with status: ${result.result}"
+
+                    if (result.result == 'SUCCESS') {
+                        echo '✅ PR job passed.'
+                    } else {
+                        echo '❌ PR job failed.'
+                        error("Stopping pipeline because PR job failed.")
+                    }
+                }
             }
-        }
         }
 
         stage('Trigger Deploy Jobs') {
@@ -85,7 +88,7 @@ pipeline {
             }
             steps {
                 echo 'Running deploy jobs...'
-                build job: 'pr_test', wait: true
+                build job: 'helath-check', wait: true
             }
         }
     }
