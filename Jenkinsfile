@@ -143,7 +143,7 @@ pipeline {
 
         stage('Run Jenkins Job 1') {
             when {
-                expression { ${PR_TRIGGERED} == 'true' }
+                expression { "${PR_TRIGGERED}" == 'true' }
             }
             steps {
                 script {
