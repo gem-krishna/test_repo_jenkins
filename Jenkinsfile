@@ -111,10 +111,14 @@ pipeline {
     stages {
         stage('Check PR Trigger') {
             steps {
+                def PR_TRIGGERED = false
                 script {
                     // Check if the build was triggered by a PR
                     if (env.CHANGE_ID) {
                         PR_TRIGGERED = true
+                        echo "successfull trigger"
+                    }else{
+                        echo "trigger failed"
                     }
                 }
             }
@@ -132,17 +136,17 @@ pipeline {
             }
         }
 
-        stage('Run Jenkins Job 2') {
-            when {
-                expression { PR_TRIGGERED }
-            }
-            steps {
-                script {
-                    // Trigger Job 2
-                    build job: 'Job-2', wait: false, propagate: false
-                }
-            }
-        }
+        // stage('Run Jenkins Job 2') {
+        //     when {
+        //         expression { PR_TRIGGERED }
+        //     }
+        //     steps {
+        //         script {
+        //             // Trigger Job 2
+        //             build job: 'Job-2', wait: false, propagate: false
+        //         }
+        //     }
+        // }
 
         stage('Other Jobs') {
             steps {
@@ -157,10 +161,10 @@ pipeline {
                 // This block will run only if both Job 1 and Job 2 are successful
                 if (currentBuild.result == 'SUCCESS') {
                     // Ensure both triggered jobs were successful
-                    def job1Success = currentBuild.getBuildByName('Job-1').result == 'SUCCESS'
-                    def job2Success = currentBuild.getBuildByName('Job-2').result == 'SUCCESS'
+                    def job1Success = currentBuild.getBuildByName('job1_test_repo_jenkins').result == 'SUCCESS'
+                    // def job2Success = currentBuild.getBuildByName('Job-2').result == 'SUCCESS'
                     
-                    if (job1Success && job2Success) {
+                    if (job1Success) {
                         echo "Both PR-triggered jobs succeeded. Proceeding with post-success actions."
                         // Perform your post-success actions here, for example:
                         // - Notify team
