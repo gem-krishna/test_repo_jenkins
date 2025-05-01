@@ -174,29 +174,29 @@ pipeline {
     }
     post {
         success {
-            // script {
+            script {
                 // This block will run only if both Job 1 and Job 2 are successful
-            //     if (currentBuild.result == 'SUCCESS') {
-            //         // Ensure both triggered jobs were successful
-            //         def job1Success = currentBuild.getBuildByName('job1_test_repo_jenkins').result == 'SUCCESS'
-            //         // def job2Success = currentBuild.getBuildByName('Job-2').result == 'SUCCESS'
+                if (currentBuild.result == 'SUCCESS') {
+                    // Ensure both triggered jobs were successful
+                    def job1Success = currentBuild.getBuildByName('job1_test_repo_jenkins').result == 'SUCCESS'
+                    // def job2Success = currentBuild.getBuildByName('Job-2').result == 'SUCCESS'
                     
-            //         if (job1Success) {
-            //             echo "Both PR-triggered jobs succeeded. Proceeding with post-success actions."
-            //             // Perform your post-success actions here, for example:
-            //             // - Notify team
-            //             // - Deploy to a staging environment
-            //             // - Trigger another job
-            //         } else {
-            //             echo "One or both PR-triggered jobs failed. Skipping post-success actions."
-            //         }
-            //     }
-            // }
-            script{
-                if(PR_TRIGGERED =='true'){
-                    echo 'All Pr-Specific jobs are completed and passed'
+                    if (job1Success) {
+                        echo "Both PR-triggered jobs succeeded. Proceeding with post-success actions."
+                        // Perform your post-success actions here, for example:
+                        // - Notify team
+                        // - Deploy to a staging environment
+                        // - Trigger another job
+                    } else {
+                        echo "One or both PR-triggered jobs failed. Skipping post-success actions."
+                    }
                 }
             }
+            // script{
+            //     if(PR_TRIGGERED =='true'){
+            //         echo 'All Pr-Specific jobs are completed and passed'
+            //     }
+            // }
         }
         failure {
             script {
