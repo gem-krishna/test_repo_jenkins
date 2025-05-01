@@ -105,18 +105,22 @@
 
 pipeline {
     agent any
+
+    environment{
+        PR_TRIGGERED='false'
+    }
         
 
    
     stages {
-        stage('Init') {
-            steps {
-                script {
-                    // Set a global variable
-                    PR_TRIGGERED='false'
-                }
-            }
-        }
+        // stage('Init') {
+        //     steps {
+        //         script {
+        //             // Set a global variable
+        //             PR_TRIGGERED='false'
+        //         }
+        //     }
+        // }
 
         stage('Debug') {
             steps {
@@ -130,18 +134,19 @@ pipeline {
                 script {
                     // Check if the build was triggered by a PR
                     if (env.CHANGE_ID) {
-                        PR_TRIGGERED='true'
+                        env.PR_TRIGGERED='true'
                         echo "successfull trigger"
                     }else{
                         echo "trigger failed"
                     }
+                    // env.xyz
                 }
             }
         }
 
         stage('Run Jenkins Job 1') {
             when {
-                expression { ${PR_TRIGGERED} == 'true' }
+                expression { ${env.PR_TRIGGERED} == 'true' }
             }
             steps {
                 script {
