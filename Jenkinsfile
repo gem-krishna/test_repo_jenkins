@@ -105,13 +105,11 @@
 
 pipeline {
     agent any
-    environment {
-        PR_TRIGGERED = 'false'
-    }
+       def PR_TRIGGERED = 'false'
 
    
     stages {
-        
+
         stage('Debug') {
             steps {
                 echo "CHANGE_ID: ${env.CHANGE_ID ?: 'Not set'}"
