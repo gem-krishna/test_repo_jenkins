@@ -113,7 +113,7 @@ pipeline {
             steps {
                 script {
                     // Set a global variable
-                    binding.setVariable('PR_TRIGGERED', 'false')
+                    PR_TRIGGERED='false'
                 }
             }
         }
@@ -130,7 +130,7 @@ pipeline {
                 script {
                     // Check if the build was triggered by a PR
                     if (env.CHANGE_ID) {
-                        binding.setVariable('PR_TRIGGERED', 'true')
+                        PR_TRIGGERED='true'
                         echo "successfull trigger"
                     }else{
                         echo "trigger failed"
