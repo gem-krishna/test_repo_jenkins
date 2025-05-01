@@ -108,6 +108,15 @@ pipeline {
     environment {
         PR_TRIGGERED = 'false'
     }
+
+    stages {
+        stage('Debug') {
+            steps {
+                echo "CHANGE_ID: ${env.CHANGE_ID ?: 'Not set'}"
+                echo "PR_TRIGGERED: ${env.PR_TRIGGERED}"
+            }
+        }
+    }
     stages {
         stage('Check PR Trigger') {
             steps {
