@@ -102,13 +102,10 @@
 //         }
 //     }
 // }
-
+def PR_TRIGGERED='false'
 pipeline {
     agent any
 
-    environment{
-        PR_TRIGGERED='false'
-    }
         
 
    
@@ -125,7 +122,7 @@ pipeline {
         stage('Debug') {
             steps {
                 echo "CHANGE_ID: ${env.CHANGE_ID ?: 'Not set'}"
-                echo "PR_TRIGGERED: ${env.PR_TRIGGERED}"
+                echo "PR_TRIGGERED: ${PR_TRIGGERED}"
             }
         }
 
@@ -134,7 +131,7 @@ pipeline {
                 script {
                     // Check if the build was triggered by a PR
                     if (env.CHANGE_ID) {
-                        env.PR_TRIGGERED='true'
+                        PR_TRIGGERED='true'
                         echo "successfull trigger"
                     }else{
                         echo "trigger failed"
@@ -146,7 +143,7 @@ pipeline {
 
         stage('Run Jenkins Job 1') {
             when {
-                expression { ${env.PR_TRIGGERED} == 'true' }
+                expression { ${PR_TRIGGERED} == 'true' }
             }
             steps {
                 script {
@@ -196,7 +193,7 @@ pipeline {
             //     }
             // }
             script{
-                if(env.PR_TRIGGERED =='true'){
+                if(PR_TRIGGERED =='true'){
                     echo 'All Pr-Specific jobs are completed and passed'
                 }
             }
