@@ -212,7 +212,7 @@
 pipeline {
     agent any
     triggers {
-        githubPullRequests() // Use githubPush() if not using the PR plugin
+        githubPush() // Use githubPush() if not using the PR plugin
     }
     parameters {
         string(name: 'ENV', defaultValue: '', description: 'Environment to deploy')
