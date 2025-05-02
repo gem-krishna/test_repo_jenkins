@@ -225,6 +225,11 @@ pipeline {
             }
             steps {
                 script {
+
+                    // def diff = sh "git diff origin/master origin/${git_branch}"
+                    // if(diff.contains("ui")){
+
+                    // }
                     // First run with ENV=dev
                     build job: env.JOB_NAME, parameters: [
                         string(name: 'ENV', value: 'dev'),
