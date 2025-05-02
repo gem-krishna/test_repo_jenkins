@@ -228,6 +228,7 @@ pipeline {
 
                     // def diff = sh "git diff origin/master origin/${git_branch}"
                     // if(diff.contains("ui")){
+                    //
 
                     // }
                     // First run with ENV=dev
