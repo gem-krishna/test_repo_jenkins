@@ -148,6 +148,7 @@ pipeline {
             steps {
                 script {
                     // Trigger Job 1
+                    echo "${PR_TRIGGERED}"
                     build job: 'job1_test_repo_jenkins', wait: false, propagate: false
                 }
             }
