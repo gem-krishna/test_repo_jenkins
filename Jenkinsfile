@@ -219,7 +219,7 @@ pipeline {
         booleanParam(name: 'IS_CHILD', defaultValue: false, description: 'Internal flag to prevent re-trigger loop')
     }
     stages {
-        stage('Trigger Self Twice with Params') {
+        stage('Trigger Self Twice with Params demo') {
             when {
                 expression { return !params.IS_CHILD } // Prevent infinite loop
             }
