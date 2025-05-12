@@ -128,41 +128,45 @@ pipeline {
             }
         }
 
-        stage('Actual Work') {
-            when {
-                expression { return params.IS_CHILD }
+       stage('Actual Work') {
+    when {
+        expression { return params.IS_CHILD }
+    }
+    steps {
+        script {
+            checkout scm
+            echo "Running actual logic with ENV=${params.ENV}"
+
+            // Ensure we have the full main branch
+            sh "git fetch --no-tags origin ${BASE_BRANCH}:${BASE_BRANCH}"
+
+            // Show branches for debug
+            sh "git branch -a"
+
+            // Diff current PR branch against main
+            def diffFiles = sh(script: "git diff --name-only origin/${BASE_BRANCH}...", returnStdout: true).trim()
+            echo "Changed files:\n${diffFiles}"
+
+            def changedFiles = diffFiles.split("\n")
+
+            def uiChanged = changedFiles.any { it.startsWith("ui/") }
+            def apiChanged = changedFiles.any { it.startsWith("api/") }
+
+            if (uiChanged) {
+                echo "UI changes detected. Triggering ui-job..."
+                build job: 'ui_job', wait : true
             }
-            steps {
-                script {
-                    echo "Running actual logic with ENV=${params.ENV}"
 
-                    // Fetch and diff from base branch
-                    checkout scm
-                    sh "git fetch origin ${BASE_BRANCH}:${BASE_BRANCH}"
+            if (apiChanged) {
+                echo "API changes detected. Triggering api-job..."
+                build job: 'api-job', wait : true
+            }
 
-                    def diffFiles = sh(script: "git diff --name-only origin/${BASE_BRANCH}...HEAD", returnStdout: true).trim()
-                    echo "Changed files:\n${diffFiles}"
-
-                    def changedFiles = diffFiles.split("\n")
-
-                    def uiChanged = changedFiles.any { it.startsWith("ui/") }
-                    def apiChanged = changedFiles.any { it.startsWith("api/") }
-
-                    if (uiChanged) {
-                        echo "UI changes detected. Triggering ui-job..."
-                        build job: 'ui_job', wait : true
-                    }
-
-                    if (apiChanged) {
-                        echo "API changes detected. Triggering api-job..."
-                        build job: 'api-job', wait : true
-                    }
-
-                    if (!uiChanged && !apiChanged) {
-                        echo "No changes detected in UI or API folders. Nothing to trigger."
-                    }
-                }
+            if (!uiChanged && !apiChanged) {
+                echo "No changes detected in UI or API folders. Nothing to trigger."
             }
         }
+    }
+    }
     }
 }
