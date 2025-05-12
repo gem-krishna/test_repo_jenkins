@@ -137,6 +137,7 @@ pipeline {
                     echo "Running actual logic with ENV=${params.ENV}"
 
                     // Fetch and diff from base branch
+                    checkout scm
                     sh "git fetch origin ${BASE_BRANCH}:${BASE_BRANCH}"
 
                     def diffFiles = sh(script: "git diff --name-only origin/${BASE_BRANCH}...HEAD", returnStdout: true).trim()
