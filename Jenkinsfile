@@ -257,3 +257,86 @@ pipeline {
         }
     }
 }
+
+
+
+
+//api and ui seperately
+
+
+// pipeline {
+//     agent any
+//     triggers {
+//         githubPush()
+//     }
+//     parameters {
+//         string(name: 'ENV', defaultValue: '', description: 'Environment to deploy')
+//         booleanParam(name: 'IS_CHILD', defaultValue: false, description: 'Internal flag to prevent re-trigger loop')
+//     }
+//     environment {
+//         BASE_BRANCH = 'main'
+//         UI_CHANGED = false
+//         API_CHANGED = false
+//     }
+//     stages {
+//         stage('Trigger Self Twice with Params demo') {
+//             when {
+//                 expression { return !params.IS_CHILD }
+//             }
+//             steps {
+//                 script {
+//                     // Run for both dev and qa
+//                     build job: env.JOB_NAME, parameters: [
+//                         string(name: 'ENV', value: 'dev'),
+//                         booleanParam(name: 'IS_CHILD', value: true)
+//                     ]
+
+//                     build job: env.JOB_NAME, parameters: [
+//                         string(name: 'ENV', value: 'qa'),
+//                         booleanParam(name: 'IS_CHILD', value: true)
+//                     ]
+//                 }
+//             }
+//         }
+
+//         stage('Actual Work') {
+//             when {
+//                 expression { return params.IS_CHILD }
+//             }
+//             steps {
+//                 script {
+//                     echo "Running actual logic with ENV=${params.ENV}"
+
+//                     // Fetch and diff from base branch
+//                     sh "git fetch origin ${BASE_BRANCH}:${BASE_BRANCH}"
+
+//                     def diffFiles = sh(script: "git diff --name-only origin/${BASE_BRANCH}...HEAD", returnStdout: true).trim()
+//                     echo "Changed files:\n${diffFiles}"
+
+//                     def changedFiles = diffFiles.split("\n")
+
+//                     def uiChanged = changedFiles.any { it.startsWith("ui/") }
+//                     def apiChanged = changedFiles.any { it.startsWith("api/") }
+
+//                     if (uiChanged) {
+//                         echo "UI changes detected. Triggering ui-job..."
+//                         build job: 'ui-job', parameters: [
+//                             string(name: 'ENV', value: params.ENV)
+//                         ]
+//                     }
+
+//                     if (apiChanged) {
+//                         echo "API changes detected. Triggering api-job..."
+//                         build job: 'api-job', parameters: [
+//                             string(name: 'ENV', value: params.ENV)
+//                         ]
+//                     }
+
+//                     if (!uiChanged && !apiChanged) {
+//                         echo "No changes detected in UI or API folders. Nothing to trigger."
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
