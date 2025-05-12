@@ -138,7 +138,7 @@ pipeline {
             echo "Running actual logic with ENV=${params.ENV}"
 
             // Ensure we have the full main branch
-            sh "git fetch --no-tags origin ${BASE_BRANCH}:${BASE_BRANCH}"
+            sh "git fetch origin ${BASE_BRANCH}"
 
             // Show branches for debug
             sh "git branch -a"
