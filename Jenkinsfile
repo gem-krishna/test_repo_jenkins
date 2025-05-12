@@ -135,16 +135,12 @@ pipeline {
     steps {
         script {
             checkout scm
-            echo "Running actual logic with ENV=${params.ENV}"
+sh "git fetch origin ${BASE_BRANCH}"
+sh "git branch -a" // Optional: just for debugging
 
-            // Ensure we have the full main branch
-            sh "git fetch origin ${BASE_BRANCH}"
+// Now perform diff
+def diffFiles = sh(script: "git diff --name-only origin/${BASE_BRANCH}...", returnStdout: true).trim()
 
-            // Show branches for debug
-            sh "git branch -a"
-
-            // Diff current PR branch against main
-            def diffFiles = sh(script: "git diff --name-only origin/${BASE_BRANCH}...", returnStdout: true).trim()
             echo "Changed files:\n${diffFiles}"
 
             def changedFiles = diffFiles.split("\n")
