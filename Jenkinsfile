@@ -189,6 +189,9 @@ pipeline {
                 script {
                     // Checkout source code to access git history
                     checkout scm
+
+                    // Fetch remote branches so origin/main is available
+                    sh 'git fetch origin'
                     
                     // Get target branch from PR (assuming GitHub plugin environment variables)
                     def targetBranch = env.CHANGE_TARGET ?: 'main'
