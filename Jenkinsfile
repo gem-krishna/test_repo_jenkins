@@ -190,7 +190,7 @@ pipeline {
                     // Checkout source code to access git history
                     checkout scm
 
-                    sh 'git fetch --all --no-tags --prune'
+                    sh 'git fetch origin main:refs/remotes/origin/main'
 
                     sh 'git branch -a'
                     
