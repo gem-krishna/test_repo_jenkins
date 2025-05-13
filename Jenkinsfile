@@ -170,152 +170,83 @@
 
 //try -1 
 
-
 pipeline {
-    // Run on any available agent
     agent any
-    
-    // Trigger pipeline on GitHub push events
     triggers {
-        githubPush()
+        githubPush() // Trigger on PR events (adjust based on your GitHub plugin setup)
     }
-    
-    // Pipeline parameters
     parameters {
-        // Environment parameter
-        string(
-            name: 'ENV',
-            defaultValue: '',
-            description: 'Environment to deploy'
-        )
-        
-        // Boolean to prevent re-trigger loop
-        booleanParam(
-            name: 'IS_CHILD',
-            defaultValue: false,
-            description: 'Internal flag to prevent re-trigger loop'
-        )
+        string(name: 'ENV', defaultValue: '', description: 'Environment to deploy')
+        string(name: 'COMPONENT', defaultValue: '', description: 'Component to build (api/ui)')
+        booleanParam(name: 'IS_CHILD', defaultValue: false, description: 'Internal flag to prevent re-trigger loop')
     }
-    
-    // Environment variables
-    environment {
-        // Base branch for comparison
-        BASE_BRANCH = 'main'
-        
-        // Flags to track changes
-        UI_CHANGED = 'false'
-        API_CHANGED = 'false'
-    }
-    
     stages {
-        // Stage to trigger self for multiple environments
-        stage('Trigger Self for Multiple Environments') {
-            // Only run if not already a child job
+        stage('Check Changed Components') {
             when {
-                expression {
-                    return !params.IS_CHILD
-                }
+                expression { return !params.IS_CHILD }
             }
             steps {
                 script {
-                    // Trigger job for dev environment
-                    build job: env.JOB_NAME, parameters: [
-                        string(name: 'ENV', value: 'dev'),
-                        booleanParam(name: 'IS_CHILD', value: true)
-                    ]
-                    
-                    // Trigger job for qa environment
-                    build job: env.JOB_NAME, parameters: [
-                        string(name: 'ENV', value: 'qa'),
-                        booleanParam(name: 'IS_CHILD', value: true)
-                    ]
-                }
-            }
-        }
-        
-        // Main work stage
-        stage('Detect and Trigger Jobs') {
-            // Only run for child jobs
-            when {
-                expression {
-                    return params.IS_CHILD
-                }
-            }
-            steps {
-                script {
-                    // Checkout source code
+                    // Checkout source code to access git history
                     checkout scm
                     
-                    // Fetch the base branch
-                    sh "git fetch origin ${BASE_BRANCH}"
-                    
-                    // Optional: Debug branch information
-                    sh "git branch -a"
+                    // Get target branch from PR (assuming GitHub plugin environment variables)
+                    def targetBranch = env.CHANGE_TARGET ?: 'main'
                     
                     // Get list of changed files
-                    def diffFiles = sh(
-                        script: "git diff --name-only origin/${BASE_BRANCH}..HEAD",
+                    def changedFiles = sh(
+                        script: "git diff --name-only HEAD origin/${targetBranch}",
                         returnStdout: true
-                    ).trim()
+                    ).trim().split('\n')
                     
-                    // Log changed files
-                    echo "Changed files:\n${diffFiles}"
-                    
-                    // Split changed files into an array
-                    def changedFiles = diffFiles ? diffFiles.split("\n") : []
-                    
-                    // Check for UI changes
-                    def uiChanged = changedFiles.any {
-                        it.startsWith("ui/") || it.startsWith("frontend/")
+                    // Determine which components were changed
+                    def changedComponents = [] as Set
+                    changedFiles.each { file ->
+                        if (file.startsWith('api/')) {
+                            changedComponents.add('api')
+                        } else if (file.startsWith('ui/')) {
+                            changedComponents.add('ui')
+                        }
                     }
                     
-                    // Check for API changes
-                    def apiChanged = changedFiles.any {
-                        it.startsWith("api/") || it.startsWith("backend/")
+                    // Fallback if no components detected (remove if you want to skip)
+                    if (changedComponents.isEmpty()) {
+                        changedComponents = ['api', 'ui'] // Default to both if no changes detected
+                        echo 'No component changes detected, triggering both components'
                     }
                     
-                    // Conditionally trigger UI job
-                    if (uiChanged) {
-                        echo "UI changes detected. Triggering ui-job..."
-                        build job: 'ui_job', wait: true, parameters: [
-                            string(name: 'ENV', value: params.ENV)
-                        ]
-                    }
-                    
-                    // Conditionally trigger API job
-                    if (apiChanged) {
-                        echo "API changes detected. Triggering api-job..."
-                        build job: 'api-job', wait: true, parameters: [
-                            string(name: 'ENV', value: params.ENV)
-                        ]
-                    }
-                    
-                    // Log if no changes detected
-                    if (!uiChanged && !apiChanged) {
-                        echo "No changes detected in UI or API folders. Nothing to trigger."
+                    // Trigger jobs for each changed component and environment
+                    def environments = ['dev', 'qa']
+                    changedComponents.each { component ->
+                        environments.each { envName ->
+                            build job: env.JOB_NAME, parameters: [
+                                string(name: 'ENV', value: envName),
+                                string(name: 'COMPONENT', value: component),
+                                booleanParam(name: 'IS_CHILD', value: true)
+                            ]
+                        }
                     }
                 }
             }
         }
-    }
-    
-    // Post-build actions
-    post {
-        // Always clean workspace
-        always {
-            cleanWs()
-        }
         
-        // Handle success
-        success {
-            echo "Pipeline completed successfully for environment: ${params.ENV}"
+        stage('Run Component Deployment') {
+            when {
+                expression { return params.IS_CHILD }
+            }
+            steps {
+                script {
+                    echo "Running deployment for ${params.COMPONENT} to ${params.ENV}"
+                    // Add your actual deployment logic here based on component and environment
+                    if (params.COMPONENT == 'api') {
+                        sh "echo 'Deploying API to ${params.ENV}'"
+                        // Add API-specific deployment commands
+                    } else if (params.COMPONENT == 'ui') {
+                        sh "echo 'Deploying UI to ${params.ENV}'"
+                        // Add UI-specific deployment commands
+                    }
+                }
+            }
         }
-        
-        // Handle failures
-        failure {
-            echo "Pipeline failed for environment: ${params.ENV}"
-        }
-
-        
     }
 }
